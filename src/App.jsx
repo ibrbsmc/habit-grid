@@ -6,6 +6,7 @@ function App() {
   const [habits, setHabits] = useState([]);
   const [habitName, setHabitName] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [error, setError] = useState("");
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -13,6 +14,18 @@ function App() {
     const cleanedHabitName = habitName.trim();
 
     if (!cleanedHabitName) {
+      setError("Alışkanlık adı boş olamaz.");
+      return;
+    }
+
+    const habitAlreadyExists = habits.some(
+      (habit) =>
+        habit.name.toLocaleLowerCase("tr-TR") ===
+        cleanedHabitName.toLocaleLowerCase("tr-TR"),
+    );
+
+    if (habitAlreadyExists) {
+      setError("Bu alışkanlık zaten mevcut.");
       return;
     }
 
@@ -23,11 +36,13 @@ function App() {
 
     setHabits((currentHabits) => [...currentHabits, newHabit]);
     setHabitName("");
+    setError("");
     setIsFormOpen(false);
   }
 
   function handleCancel() {
     setHabitName("");
+    setError("");
     setIsFormOpen(false);
   }
 
@@ -44,7 +59,13 @@ function App() {
           </div>
 
           <Button
-            onClick={() => setIsFormOpen((currentValue) => !currentValue)}
+            onClick={() => {
+              if (isFormOpen) {
+                handleCancel();
+              } else {
+                setIsFormOpen(true);
+              }
+            }}
           >
             {isFormOpen ? "Formu kapat" : "Alışkanlık ekle"}
           </Button>
@@ -66,14 +87,26 @@ function App() {
                 className="mt-2"
                 placeholder="Örneğin: Kitap okumak"
                 value={habitName}
-                onChange={(event) => setHabitName(event.target.value)}
+                onChange={(event) => {
+                  setHabitName(event.target.value);
+                  setError("");
+                }}
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? "habit-name-error" : undefined}
                 autoFocus
               />
 
+              {error && (
+                <p
+                  id="habit-name-error"
+                  className="mt-2 text-sm text-destructive"
+                >
+                  {error}
+                </p>
+              )}
+
               <div className="mt-4 flex gap-2">
-                <Button type="submit" disabled={!habitName.trim()}>
-                  Kaydet
-                </Button>
+                <Button type="submit">Kaydet</Button>
 
                 <Button type="button" variant="outline" onClick={handleCancel}>
                   İptal
