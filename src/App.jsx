@@ -54,6 +54,12 @@ function App() {
     setIsFormOpen(false);
   }
 
+  function handleDelete(habitId) {
+    setHabits((currentHabits) =>
+      currentHabits.filter((habit) => habit.id !== habitId),
+    );
+  }
+
   return (
     <div className="min-h-screen bg-muted/30">
       <header className="border-b bg-background">
@@ -138,7 +144,11 @@ function App() {
           ) : (
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {habits.map((habit) => (
-                <HabitCard key={habit.id} habit={habit} />
+                <HabitCard
+                  key={habit.id}
+                  habit={habit}
+                  onDelete={handleDelete}
+                />
               ))}
             </div>
           )}
