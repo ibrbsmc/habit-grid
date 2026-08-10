@@ -1,3 +1,4 @@
+import HabitCard from "@/features/habits/components/HabitCard";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -130,16 +131,7 @@ function App() {
           ) : (
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {habits.map((habit) => (
-                <article
-                  key={habit.id}
-                  className="rounded-xl border bg-background p-5"
-                >
-                  <h3 className="font-semibold">{habit.name}</h3>
-
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Henüz tamamlanan gün bulunmuyor.
-                  </p>
-                </article>
+                <HabitCard key={habit.id} habit={habit} />
               ))}
             </div>
           )}
