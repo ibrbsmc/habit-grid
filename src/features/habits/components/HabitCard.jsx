@@ -16,8 +16,15 @@ function HabitCard({ habit, onDelete, onEdit }) {
     <article className="rounded-xl border bg-background p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="font-semibold">{habit.name}</h3>
+          <div className="flex items-center gap-3">
+            <span
+              className="h-3 w-3 shrink-0 rounded-full"
+              style={{ backgroundColor: habit.color ?? "#2563eb" }}
+              aria-hidden="true"
+            />
 
+            <h3 className="font-semibold">{habit.name}</h3>
+          </div>
           <p className="mt-1 text-sm text-muted-foreground">
             Henüz tamamlanan gün bulunmuyor.
           </p>

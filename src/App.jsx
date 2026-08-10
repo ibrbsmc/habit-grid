@@ -4,6 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 function App() {
+  const habitColors = [
+    { name: "Mavi", value: "#2563eb" },
+    { name: "Yeşil", value: "#16a34a" },
+    { name: "Mor", value: "#9333ea" },
+    { name: "Turuncu", value: "#ea580c" },
+    { name: "Kırmızı", value: "#dc2626" },
+  ];
+
   const [habits, setHabits] = useState(() => {
     const savedHabits = localStorage.getItem("habit-grid-habits");
     return savedHabits ? JSON.parse(savedHabits) : [];
@@ -12,6 +20,7 @@ function App() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [error, setError] = useState("");
   const [editingHabitId, setEditingHabitId] = useState(null);
+  const [habitColor, setHabitColor] = useState("#2563eb");
 
   useEffect(() => {
     localStorage.setItem("habit-grid-habits", JSON.stringify(habits));
@@ -43,7 +52,7 @@ function App() {
       setHabits((currentHabits) =>
         currentHabits.map((habit) =>
           habit.id === editingHabitId
-            ? { ...habit, name: cleanedHabitName }
+            ? { ...habit, name: cleanedHabitName, color: habitColor }
             : habit,
         ),
       );
@@ -51,6 +60,7 @@ function App() {
       const newHabit = {
         id: crypto.randomUUID(),
         name: cleanedHabitName,
+        color: habitColor,
       };
 
       setHabits((currentHabits) => [...currentHabits, newHabit]);
@@ -64,6 +74,7 @@ function App() {
     setEditingHabitId(null);
     setError("");
     setIsFormOpen(false);
+    setHabitColor("#2563eb"); // habitColor yalnızca formda seçili olan geçici rengi tutar; kartın rengi ise habits dizisindeki habit.color değerinden gelir. Rengi sıfırlamasaydık yeni alışkanlık formu kırmızı seçili olarak açılırdı. Sıfırladığımız için yeni form varsayılan maviyle açılır.
   }
 
   function handleDelete(habitId) {
@@ -77,6 +88,7 @@ function App() {
     setEditingHabitId(habit.id);
     setHabitName(habit.name);
     setError("");
+    setHabitColor(habit.color ?? "#2563eb"); // Alışkanlığın rengi varsa onu kullanır.
     setIsFormOpen(true);
   }
 
@@ -139,6 +151,31 @@ function App() {
                   {error}
                 </p>
               )}
+
+              <fieldset className="mt-4">
+                <legend className="text-sm font-medium">
+                  Alışkanlık rengi
+                </legend>
+
+                <div className="mt-2 flex flex-wrap gap-3">
+                  {habitColors.map((color) => (
+                    <button
+                      key={color.value}
+                      type="button"
+                      className={`h-9 w-9 rounded-full border ${
+                        habitColor === color.value
+                          ? "ring-2 ring-primary ring-offset-2"
+                          : ""
+                      }`}
+                      style={{ backgroundColor: color.value }}
+                      onClick={() => setHabitColor(color.value)}
+                      aria-label={color.name}
+                      aria-pressed={habitColor === color.value}
+                      title={color.name}
+                    />
+                  ))}
+                </div>
+              </fieldset>
 
               <div className="mt-4 flex gap-2">
                 <Button type="submit">
