@@ -1,13 +1,20 @@
 import HabitCard from "@/features/habits/components/HabitCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 function App() {
-  const [habits, setHabits] = useState([]);
+  const [habits, setHabits] = useState(() => {
+    const savedHabits = localStorage.getItem("habit-grid-habits");
+    return savedHabits ? JSON.parse(savedHabits) : [];
+  });
   const [habitName, setHabitName] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    localStorage.setItem("habit-grid-habits", JSON.stringify(habits));
+  }, [habits]);
 
   function handleSubmit(event) {
     event.preventDefault();
