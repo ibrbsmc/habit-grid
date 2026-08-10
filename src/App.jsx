@@ -11,6 +11,7 @@ function App() {
   const [habitName, setHabitName] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [error, setError] = useState("");
+  const [editingHabitId, setEditingHabitId] = useState(null);
 
   useEffect(() => {
     localStorage.setItem("habit-grid-habits", JSON.stringify(habits));
@@ -22,34 +23,45 @@ function App() {
     const cleanedHabitName = habitName.trim();
 
     if (!cleanedHabitName) {
-      setError("Alışkanlık adı boş olamaz.");
+      setError("Alışkanlık adı boş bırakılamaz.");
       return;
     }
 
     const habitAlreadyExists = habits.some(
       (habit) =>
+        habit.id !== editingHabitId &&
         habit.name.toLocaleLowerCase("tr-TR") ===
-        cleanedHabitName.toLocaleLowerCase("tr-TR"),
+          cleanedHabitName.toLocaleLowerCase("tr-TR"),
     );
 
     if (habitAlreadyExists) {
-      setError("Bu alışkanlık zaten mevcut.");
+      setError("Bu isimde bir alışkanlık zaten bulunuyor.");
       return;
     }
 
-    const newHabit = {
-      id: crypto.randomUUID(),
-      name: cleanedHabitName,
-    };
+    if (editingHabitId) {
+      setHabits((currentHabits) =>
+        currentHabits.map((habit) =>
+          habit.id === editingHabitId
+            ? { ...habit, name: cleanedHabitName }
+            : habit,
+        ),
+      );
+    } else {
+      const newHabit = {
+        id: crypto.randomUUID(),
+        name: cleanedHabitName,
+      };
 
-    setHabits((currentHabits) => [...currentHabits, newHabit]);
-    setHabitName("");
-    setError("");
-    setIsFormOpen(false);
+      setHabits((currentHabits) => [...currentHabits, newHabit]);
+    }
+
+    handleCancel();
   }
 
   function handleCancel() {
     setHabitName("");
+    setEditingHabitId(null);
     setError("");
     setIsFormOpen(false);
   }
@@ -58,6 +70,14 @@ function App() {
     setHabits((currentHabits) =>
       currentHabits.filter((habit) => habit.id !== habitId),
     );
+  }
+
+  // Fonksiyona yalnızca ID yerine alışkanlığın tamamını gönderiyoruz çünkü hem habit.id hem de habit.name bilgisine ihtiyacımız var.
+  function handleEdit(habit) {
+    setEditingHabitId(habit.id);
+    setHabitName(habit.name);
+    setError("");
+    setIsFormOpen(true);
   }
 
   return (
@@ -89,8 +109,9 @@ function App() {
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         {isFormOpen && (
           <section className="mb-8 rounded-xl border bg-background p-5">
-            <h2 className="text-lg font-semibold">Yeni alışkanlık</h2>
-
+            <h2 className="text-lg font-semibold">
+              {editingHabitId ? "Alışkanlığı düzenle" : "Yeni alışkanlık"}
+            </h2>
             <form className="mt-4" onSubmit={handleSubmit}>
               <label className="text-sm font-medium" htmlFor="habit-name">
                 Alışkanlık adı
@@ -120,8 +141,9 @@ function App() {
               )}
 
               <div className="mt-4 flex gap-2">
-                <Button type="submit">Kaydet</Button>
-
+                <Button type="submit">
+                  {editingHabitId ? "Değişiklikleri kaydet" : "Kaydet"}
+                </Button>
                 <Button type="button" variant="outline" onClick={handleCancel}>
                   İptal
                 </Button>
@@ -148,6 +170,7 @@ function App() {
                   key={habit.id}
                   habit={habit}
                   onDelete={handleDelete}
+                  onEdit={handleEdit}
                 />
               ))}
             </div>
