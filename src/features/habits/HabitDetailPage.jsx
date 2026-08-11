@@ -1,9 +1,40 @@
+import HabitExportPanel from "@/features/habits/components/HabitExportPanel";
 import HabitHeatmap from "@/features/habits/components/HabitHeatmap";
+import HabitHistoryEditor from "@/features/habits/components/HabitHistoryEditor";
 import { getDatesInYear, getStartOfWeek, getTodayDate } from "@/lib/date";
 import { useParams } from "react-router";
-import { getCurrentStreak, getLongestStreak } from "@/lib/habitStats";
+import {
+  getCurrentStreak,
+  getLongestStreak,
+  getMostSuccessfulDay,
+  getMostSuccessfulWeek,
+} from "@/lib/habitStats";
 
-function HabitDetailPage({ habits }) {
+function formatWeekRange(week) {
+  if (!week) {
+    return "Henüz yok";
+  }
+
+  const startDate = new Date(`${week.startDate}T00:00:00Z`);
+  const endDate = new Date(`${week.endDate}T00:00:00Z`);
+
+  const formattedStartDate = startDate.toLocaleDateString("tr-TR", {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
+
+  const formattedEndDate = endDate.toLocaleDateString("tr-TR", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
+  return `${formattedStartDate} – ${formattedEndDate} (${week.count} gün)`;
+}
+
+function HabitDetailPage({ habits, onUpdateDate }) {
   const { habitId } = useParams();
 
   const habit = habits.find((habit) => String(habit.id) === habitId);
@@ -25,6 +56,8 @@ function HabitDetailPage({ habits }) {
   const currentStreak = getCurrentStreak(completedDates);
   const selectedYear = new Date().getFullYear();
   const longestStreak = getLongestStreak(completedDates);
+  const mostSuccessfulDay = getMostSuccessfulDay(completedDates);
+  const mostSuccessfulWeek = getMostSuccessfulWeek(completedDates);
 
   const yearDates = getDatesInYear(selectedYear);
   const today = getTodayDate();
@@ -67,6 +100,20 @@ function HabitDetailPage({ habits }) {
     trackedDates.length > 0
       ? Math.round((completedDayCount / trackedDates.length) * 100)
       : 0;
+
+  const bestDayText = mostSuccessfulDay
+    ? `${mostSuccessfulDay.name} (${mostSuccessfulDay.count} kez)`
+    : "Henüz yok";
+  const bestWeekText = formatWeekRange(mostSuccessfulWeek);
+
+  const exportStatistics = {
+    totalCompletedDays,
+    currentStreak,
+    longestStreak,
+    yearlySuccessRate,
+    bestDayText,
+    bestWeekText,
+  };
 
   return (
     <div>
@@ -130,12 +177,34 @@ function HabitDetailPage({ habits }) {
           </div>
         </div>
 
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-lg border p-4">
+            <p className="text-sm text-muted-foreground">En başarılı gün</p>
+
+            <p className="mt-1 text-xl font-semibold">{bestDayText}</p>
+          </div>
+
+          <div className="rounded-lg border p-4">
+            <p className="text-sm text-muted-foreground">En başarılı hafta</p>
+
+            <p className="mt-1 text-xl font-semibold">{bestWeekText}</p>
+          </div>
+        </div>
+
         <HabitHeatmap
           year={selectedYear}
           completedDates={completedDates}
           color={habit.color}
           dailyAmounts={habit.dailyAmounts ?? {}}
           target={habit.target}
+        />
+
+        <HabitHistoryEditor habit={habit} onUpdateDate={onUpdateDate} />
+
+        <HabitExportPanel
+          habit={habit}
+          year={selectedYear}
+          statistics={exportStatistics}
         />
       </div>
     </div>

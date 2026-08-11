@@ -179,18 +179,35 @@ function App() {
     );
   }
 
-  // Alışkanlığın günlük miktarını güncellemek için kullanılan fonksiyon. amount parametresi, inputtan alınan değeri temsil eder.
-  function handleUpdateTodayAmount(habitId, amount) {
-    const today = getTodayDate();
-    const numericAmount = Number(amount);
-
-    if (!Number.isFinite(numericAmount) || numericAmount < 0) {
+  function handleUpdateDate(habitId, date, progress) {
+    if (!date || date > getTodayDate()) {
       return;
     }
 
     setHabits((currentHabits) =>
       currentHabits.map((habit) => {
-        if (habit.id !== habitId || !habit.target) {
+        if (habit.id !== habitId) {
+          return habit;
+        }
+
+        const completedDates = habit.completedDates ?? [];
+
+        if (!habit.target) {
+          const isCompleted = Boolean(progress.isCompleted);
+
+          return {
+            ...habit,
+            completedDates: isCompleted
+              ? [...new Set([...completedDates, date])].sort()
+              : completedDates.filter(
+                  (completedDate) => completedDate !== date,
+                ),
+          };
+        }
+
+        const numericAmount = Number(progress.amount);
+
+        if (!Number.isFinite(numericAmount) || numericAmount < 0) {
           return habit;
         }
 
@@ -198,35 +215,29 @@ function App() {
           ...(habit.dailyAmounts ?? {}),
         };
 
-        if (amount === "" || numericAmount === 0) {
-          delete updatedDailyAmounts[today];
+        if (progress.amount === "" || numericAmount === 0) {
+          delete updatedDailyAmounts[date];
         } else {
-          updatedDailyAmounts[today] = numericAmount;
+          updatedDailyAmounts[date] = numericAmount;
         }
-
-        const completedDates = habit.completedDates ?? [];
 
         const hasReachedTarget = numericAmount >= habit.target.amount;
-
-        let updatedCompletedDates = completedDates;
-
-        if (hasReachedTarget && !completedDates.includes(today)) {
-          updatedCompletedDates = [...completedDates, today];
-        }
-
-        if (!hasReachedTarget) {
-          updatedCompletedDates = completedDates.filter(
-            (date) => date !== today,
-          );
-        }
 
         return {
           ...habit,
           dailyAmounts: updatedDailyAmounts,
-          completedDates: updatedCompletedDates,
+          completedDates: hasReachedTarget
+            ? [...new Set([...completedDates, date])].sort()
+            : completedDates.filter(
+                (completedDate) => completedDate !== date,
+              ),
         };
       }),
     );
+  }
+
+  function handleUpdateTodayAmount(habitId, amount) {
+    handleUpdateDate(habitId, getTodayDate(), { amount });
   }
 
   return (
@@ -474,7 +485,12 @@ function App() {
       />
       <Route
         path="/aliskanliklar/:habitId"
-        element={<HabitDetailPage habits={habits} />}
+        element={
+          <HabitDetailPage
+            habits={habits}
+            onUpdateDate={handleUpdateDate}
+          />
+        }
       />
     </Routes>
   );
