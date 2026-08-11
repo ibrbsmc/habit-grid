@@ -11,11 +11,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { habitIcons } from "@/features/habits/habitOptions";
+import { getTodayDate } from "@/lib/date";
 
-function HabitCard({ habit, onDelete, onEdit }) {
+function HabitCard({ habit, onDelete, onEdit, onToggleToday }) {
   const HabitIcon =
     habitIcons.find((icon) => icon.value === habit.icon)?.Icon ??
     habitIcons[0].Icon;
+
+  const today = getTodayDate();
+  const isCompletedToday = (habit.completedDates ?? []).includes(today);
+
   return (
     <article className="rounded-xl border bg-background p-5">
       <div className="flex items-start justify-between gap-4">
@@ -31,7 +36,9 @@ function HabitCard({ habit, onDelete, onEdit }) {
             <h3 className="font-semibold">{habit.name}</h3>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            Henüz tamamlanan gün bulunmuyor.
+            {isCompletedToday
+              ? "Bugün tamamlandı."
+              : "Bugün henüz tamamlanmadı."}
           </p>
         </div>
         <div className="flex gap-2">
@@ -75,6 +82,14 @@ function HabitCard({ habit, onDelete, onEdit }) {
           </AlertDialog>
         </div>
       </div>
+      <Button
+        type="button"
+        className="mt-4 w-full"
+        variant={isCompletedToday ? "outline" : "default"}
+        onClick={() => onToggleToday(habit.id)}
+      >
+        {isCompletedToday ? "Tamamlamayı geri al" : "Bugünü tamamla"}
+      </Button>
     </article>
   );
 }

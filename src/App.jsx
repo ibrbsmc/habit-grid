@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { habitIcons } from "@/features/habits/habitOptions";
+import { getTodayDate } from "@/lib/date";
 
 function App() {
   const habitColors = [
@@ -69,6 +70,7 @@ function App() {
         name: cleanedHabitName,
         color: habitColor,
         icon: habitIcon,
+        completedDates: [],
       };
 
       setHabits((currentHabits) => [...currentHabits, newHabit]);
@@ -100,6 +102,36 @@ function App() {
     setHabitColor(habit.color ?? "#2563eb"); // Alışkanlığın rengi varsa onu kullanır.
     setHabitIcon(habit.icon ?? "target");
     setIsFormOpen(true);
+  }
+
+  function handleToggleToday(habitId) {
+    const today = getTodayDate();
+
+    setHabits((currentHabits) =>
+      currentHabits.map((habit) => {
+        if (habit.id !== habitId) {
+          return habit;
+        }
+
+        const completedDates = habit.completedDates ?? [];
+        const isCompletedToday = completedDates.includes(today);
+
+        let updatedCompletedDates;
+
+        if (isCompletedToday) {
+          updatedCompletedDates = completedDates.filter(
+            (date) => date !== today,
+          );
+        } else {
+          updatedCompletedDates = [...completedDates, today];
+        }
+
+        return {
+          ...habit,
+          completedDates: updatedCompletedDates,
+        };
+      }),
+    );
   }
 
   return (
@@ -244,6 +276,7 @@ function App() {
                   habit={habit}
                   onDelete={handleDelete}
                   onEdit={handleEdit}
+                  onToggleToday={handleToggleToday}
                 />
               ))}
             </div>
