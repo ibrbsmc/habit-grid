@@ -62,6 +62,8 @@ function HabitDetailPage({ habits }) {
           year={selectedYear}
           completedDates={completedDates}
           color={habit.color}
+          dailyAmounts={habit.dailyAmounts ?? {}}
+          target={habit.target}
         />
       </div>
     </div>

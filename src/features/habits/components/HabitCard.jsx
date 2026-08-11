@@ -125,8 +125,16 @@ function HabitCard({
             </span>
           </div>
 
-          <p className="mt-2 text-sm text-muted-foreground">
-            Günlük hedef: {habit.target.amount} {habit.target.unit}
+          <p
+            className={`mt-2 text-sm ${
+              isCompletedToday
+                ? "font-medium text-emerald-600"
+                : "text-muted-foreground"
+            }`}
+          >
+            {isCompletedToday
+              ? `Bugünkü hedef tamamlandı: ${todayAmount} ${habit.target.unit}`
+              : `Bugünkü ilerleme: ${todayAmount || 0} / ${habit.target.amount} ${habit.target.unit}`}
           </p>
         </div>
       ) : (

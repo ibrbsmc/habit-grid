@@ -6,7 +6,13 @@ import {
 
 const weekDayLabels = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
-function HabitHeatmap({ year, completedDates = [], color }) {
+function HabitHeatmap({
+  year,
+  completedDates = [],
+  color,
+  dailyAmounts = {},
+  target,
+}) {
   const yearDates = getDatesInYear(year);
   const yearWeeks = groupDatesByWeek(yearDates);
 
@@ -69,17 +75,26 @@ function HabitHeatmap({ year, completedDates = [], color }) {
 
                     const isCompleted = completedDates.includes(date);
 
+                    const dailyAmount = dailyAmounts[date] ?? 0; // Ör. dailyAmounts["2026-08-11"];
+
+                    let intensity = isCompleted ? 1 : 0; // Hücrenin renk yoğunluğu
+
+                    if (target && dailyAmount > 0) {
+                      intensity = Math.min(dailyAmount / target.amount, 1);
+                    }
+
                     return (
                       <div
-                        key={date}
-                        title={`${date} - ${
-                          isCompleted ? "Tamamlandı" : "Tamamlanmadı"
-                        }`}
-                        className={`size-3 rounded-sm ${
-                          isCompleted ? "" : "bg-muted"
+                        className={`h-3 w-3 rounded-sm ${
+                          intensity === 0 ? "bg-muted" : ""
                         }`}
                         style={
-                          isCompleted ? { backgroundColor: color } : undefined
+                          intensity > 0
+                            ? {
+                                backgroundColor: color,
+                                opacity: 0.25 + intensity * 0.75,
+                              }
+                            : undefined
                         }
                       />
                     );
