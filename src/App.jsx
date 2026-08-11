@@ -26,6 +26,10 @@ function App() {
   const [editingHabitId, setEditingHabitId] = useState(null);
   const [habitColor, setHabitColor] = useState("#2563eb");
   const [habitIcon, setHabitIcon] = useState("target");
+  const [usesTarget, setUsesTarget] = useState(false); // miktar hedefinin kullanılıp kullanılmadığı
+  const [targetAmount, setTargetAmount] = useState(""); // günlük miktar hedefi
+  const [targetUnit, setTargetUnit] = useState(""); // günlük miktar hedefinin birimi
+  const [targetError, setTargetError] = useState(""); // günlük miktar hedefi ile ilgili hata mesajı
 
   useEffect(() => {
     localStorage.setItem("habit-grid-habits", JSON.stringify(habits));
@@ -53,6 +57,32 @@ function App() {
       return;
     }
 
+    const numericTargetAmount = Number(targetAmount); // Inputlardan alınan değerler, type="number" olsa bile JavaScript’e genellikle metin olarak gelir.
+    const cleanedTargetUnit = targetUnit.trim();
+
+    if (
+      // Hedef kullanılıyorsa ve hedef miktar geçerli değilse hata mesajı göster.
+      usesTarget &&
+      (!targetAmount ||
+        !Number.isFinite(numericTargetAmount) ||
+        numericTargetAmount <= 0)
+    ) {
+      setTargetError("Günlük hedef sıfırdan büyük olmalıdır.");
+      return;
+    }
+
+    if (usesTarget && !cleanedTargetUnit) {
+      setTargetError("Hedef birimi boş bırakılamaz.");
+      return;
+    }
+
+    const target = usesTarget
+      ? {
+          amount: numericTargetAmount,
+          unit: cleanedTargetUnit,
+        }
+      : null;
+
     if (editingHabitId) {
       setHabits((currentHabits) =>
         currentHabits.map((habit) =>
@@ -62,6 +92,8 @@ function App() {
                 name: cleanedHabitName,
                 color: habitColor,
                 icon: habitIcon,
+                target,
+                dailyAmounts: usesTarget ? (habit.dailyAmounts ?? {}) : {},
               }
             : habit,
         ),
@@ -73,6 +105,8 @@ function App() {
         color: habitColor,
         icon: habitIcon,
         completedDates: [],
+        target,
+        dailyAmounts: {},
       };
 
       setHabits((currentHabits) => [...currentHabits, newHabit]);
@@ -88,6 +122,10 @@ function App() {
     setIsFormOpen(false);
     setHabitColor("#2563eb"); // habitColor yalnızca formda seçili olan geçici rengi tutar; kartın rengi ise habits dizisindeki habit.color değerinden gelir. Rengi sıfırlamasaydık yeni alışkanlık formu kırmızı seçili olarak açılırdı. Sıfırladığımız için yeni form varsayılan maviyle açılır.
     setHabitIcon("target");
+    setUsesTarget(false);
+    setTargetAmount("");
+    setTargetUnit("");
+    setTargetError("");
   }
 
   function handleDelete(habitId) {
@@ -104,6 +142,11 @@ function App() {
     setHabitColor(habit.color ?? "#2563eb"); // Alışkanlığın rengi varsa onu kullanır.
     setHabitIcon(habit.icon ?? "target");
     setIsFormOpen(true);
+    const target = habit.target ?? null;
+    setUsesTarget(Boolean(target)); // Hedef kullanılıyorsa true, yoksa false
+    setTargetAmount(target?.amount ?? "");
+    setTargetUnit(target?.unit ?? "");
+    setTargetError("");
   }
 
   function handleToggleToday(habitId) {
@@ -182,7 +225,7 @@ function App() {
                     <Input
                       id="habit-name"
                       className="mt-2"
-                      placeholder="Örneğin: Kitap okumak"
+                      placeholder="Örneğin: Kitap Okumak"
                       value={habitName}
                       onChange={(event) => {
                         setHabitName(event.target.value);
@@ -252,6 +295,86 @@ function App() {
                         ))}
                       </div>
                     </fieldset>
+
+                    <div className="mt-4">
+                      <label className="flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          className="mt-1 size-4"
+                          checked={usesTarget}
+                          onChange={(event) => {
+                            setUsesTarget(event.target.checked);
+                            setTargetError("");
+                          }}
+                        />
+
+                        <span>
+                          <span className="block text-sm font-medium">
+                            Miktar hedefi kullan
+                          </span>
+
+                          <span className="block text-sm text-muted-foreground">
+                            Günlük sayfa, bardak veya kilometre gibi bir hedef
+                            belirle.
+                          </span>
+                        </span>
+                      </label>
+
+                      {usesTarget && (
+                        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                          <div>
+                            <label
+                              className="text-sm font-medium"
+                              htmlFor="target-amount"
+                            >
+                              Günlük hedef
+                            </label>
+
+                            <Input
+                              id="target-amount"
+                              type="number"
+                              min="0"
+                              step="any"
+                              className="mt-2"
+                              placeholder="Örneğin: 20"
+                              value={targetAmount}
+                              onChange={(event) => {
+                                setTargetAmount(event.target.value);
+                                setTargetError("");
+                              }}
+                              aria-invalid={Boolean(targetError)}
+                            />
+                          </div>
+
+                          <div>
+                            <label
+                              className="text-sm font-medium"
+                              htmlFor="target-unit"
+                            >
+                              Birim
+                            </label>
+
+                            <Input
+                              id="target-unit"
+                              className="mt-2"
+                              placeholder="Örneğin: Sayfa"
+                              value={targetUnit}
+                              onChange={(event) => {
+                                setTargetUnit(event.target.value);
+                                setTargetError("");
+                              }}
+                              aria-invalid={Boolean(targetError)}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {targetError && (
+                        <p className="mt-2 text-sm text-destructive">
+                          {targetError}
+                        </p>
+                      )}
+                    </div>
 
                     <div className="mt-4 flex gap-2">
                       <Button type="submit">
