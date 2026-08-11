@@ -179,6 +179,56 @@ function App() {
     );
   }
 
+  // Alışkanlığın günlük miktarını güncellemek için kullanılan fonksiyon. amount parametresi, inputtan alınan değeri temsil eder.
+  function handleUpdateTodayAmount(habitId, amount) {
+    const today = getTodayDate();
+    const numericAmount = Number(amount);
+
+    if (!Number.isFinite(numericAmount) || numericAmount < 0) {
+      return;
+    }
+
+    setHabits((currentHabits) =>
+      currentHabits.map((habit) => {
+        if (habit.id !== habitId || !habit.target) {
+          return habit;
+        }
+
+        const updatedDailyAmounts = {
+          ...(habit.dailyAmounts ?? {}),
+        };
+
+        if (amount === "" || numericAmount === 0) {
+          delete updatedDailyAmounts[today];
+        } else {
+          updatedDailyAmounts[today] = numericAmount;
+        }
+
+        const completedDates = habit.completedDates ?? [];
+
+        const hasReachedTarget = numericAmount >= habit.target.amount;
+
+        let updatedCompletedDates = completedDates;
+
+        if (hasReachedTarget && !completedDates.includes(today)) {
+          updatedCompletedDates = [...completedDates, today];
+        }
+
+        if (!hasReachedTarget) {
+          updatedCompletedDates = completedDates.filter(
+            (date) => date !== today,
+          );
+        }
+
+        return {
+          ...habit,
+          dailyAmounts: updatedDailyAmounts,
+          completedDates: updatedCompletedDates,
+        };
+      }),
+    );
+  }
+
   return (
     <Routes>
       <Route
@@ -412,6 +462,7 @@ function App() {
                         onDelete={handleDelete}
                         onEdit={handleEdit}
                         onToggleToday={handleToggleToday}
+                        onUpdateTodayAmount={handleUpdateTodayAmount}
                       />
                     ))}
                   </div>

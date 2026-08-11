@@ -14,8 +14,15 @@ import { habitIcons } from "@/features/habits/habitOptions";
 import { getTodayDate } from "@/lib/date";
 import { getCurrentStreak, getLastSevenDaysRate } from "@/lib/habitStats";
 import { Link } from "react-router";
+import { Input } from "@/components/ui/input";
 
-function HabitCard({ habit, onDelete, onEdit, onToggleToday }) {
+function HabitCard({
+  habit,
+  onDelete,
+  onEdit,
+  onToggleToday,
+  onUpdateTodayAmount,
+}) {
   const HabitIcon =
     habitIcons.find((icon) => icon.value === habit.icon)?.Icon ??
     habitIcons[0].Icon;
@@ -25,6 +32,7 @@ function HabitCard({ habit, onDelete, onEdit, onToggleToday }) {
   const totalCompletedDays = (habit.completedDates ?? []).length;
   const currentStreak = getCurrentStreak(habit.completedDates);
   const lastSevenDaysRate = getLastSevenDaysRate(habit.completedDates);
+  const todayAmount = habit.dailyAmounts?.[today] ?? "";
 
   return (
     <article className="rounded-xl border bg-background p-5">
@@ -91,14 +99,48 @@ function HabitCard({ habit, onDelete, onEdit, onToggleToday }) {
           </AlertDialog>
         </div>
       </div>
-      <Button
-        type="button"
-        className="mt-4 w-full"
-        variant={isCompletedToday ? "outline" : "default"}
-        onClick={() => onToggleToday(habit.id)}
-      >
-        {isCompletedToday ? "Tamamlamayı geri al" : "Bugünü tamamla"}
-      </Button>
+      {habit.target ? (
+        <div className="mt-4 rounded-lg border bg-muted/30 p-3">
+          <label
+            className="text-sm font-medium"
+            htmlFor={`today-amount-${habit.id}`}
+          >
+            Bugünkü miktar
+          </label>
+
+          <div className="mt-2 flex items-center gap-2">
+            <Input
+              id={`today-amount-${habit.id}`}
+              type="number"
+              min="0"
+              step="any"
+              value={todayAmount}
+              onChange={(event) =>
+                onUpdateTodayAmount(habit.id, event.target.value)
+              }
+            />
+
+            <span className="shrink-0 text-sm text-muted-foreground">
+              {habit.target.unit}
+            </span>
+          </div>
+
+          <p className="mt-2 text-sm text-muted-foreground">
+            Günlük hedef: {habit.target.amount} {habit.target.unit}
+          </p>
+        </div>
+      ) : (
+        <Button
+          type="button"
+          className="mt-4 w-full"
+          variant={isCompletedToday ? "outline" : "default"}
+          onClick={() => onToggleToday(habit.id)}
+        >
+          {isCompletedToday
+            ? "Bugünün tamamlanmasını kaldır"
+            : "Bugünü tamamla"}
+        </Button>
+      )}
     </article>
   );
 }
