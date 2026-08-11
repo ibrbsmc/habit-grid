@@ -1,5 +1,6 @@
-import { Link, useParams } from "react-router";
-import { getCurrentStreak, getLastSevenDaysRate } from "@/lib/habitStats";
+import HabitHeatmap from "@/features/habits/components/HabitHeatmap";
+import { getCurrentStreak } from "@/lib/habitStats";
+import { useParams } from "react-router";
 
 function HabitDetailPage({ habits }) {
   const { habitId } = useParams();
@@ -8,81 +9,62 @@ function HabitDetailPage({ habits }) {
 
   if (!habit) {
     return (
-      <main className="min-h-screen bg-muted/30 px-4 py-8 sm:px-6">
-        <div className="mx-auto max-w-6xl">
-          <Link
-            to="/"
-            className="text-sm font-medium text-primary hover:underline"
-          >
-            ← Alışkanlıklara dön
-          </Link>
+      <div className="rounded-xl border bg-card p-6">
+        <h1 className="text-xl font-semibold">Alışkanlık bulunamadı</h1>
 
-          <section className="mt-6 rounded-xl border bg-background p-6">
-            <h1 className="text-2xl font-bold">Alışkanlık bulunamadı</h1>
-
-            <p className="mt-2 text-sm text-muted-foreground">
-              Bu alışkanlık silinmiş veya geçersiz bir bağlantı açılmış
-              olabilir.
-            </p>
-          </section>
-        </div>
-      </main>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Görüntülemek istediğiniz alışkanlık mevcut değil.
+        </p>
+      </div>
     );
   }
 
   const completedDates = habit.completedDates ?? [];
-
   const totalCompletedDays = completedDates.length;
   const currentStreak = getCurrentStreak(completedDates);
-  const lastSevenDaysRate = getLastSevenDaysRate(completedDates);
+  const selectedYear = new Date().getFullYear();
 
   return (
-    <main className="min-h-screen bg-muted/30 px-4 py-8 sm:px-6">
-      <div className="mx-auto max-w-6xl">
-        <Link
-          to="/"
-          className="text-sm font-medium text-primary hover:underline"
-        >
-          ← Alışkanlıklara dön
-        </Link>
+    <div>
+      <div className="rounded-xl border bg-card p-6">
+        <div className="flex items-center gap-3">
+          <div
+            className="size-4 shrink-0 rounded-full"
+            style={{ backgroundColor: habit.color }}
+          />
 
-        <section className="mt-6 rounded-xl border bg-background p-6">
-          <div className="flex items-center gap-3">
-            <div
-              className="size-4 rounded-full"
-              style={{ backgroundColor: habit.color }}
-            />
-
+          <div>
             <h1 className="text-2xl font-bold">{habit.name}</h1>
+
+            <p className="mt-1 text-sm text-muted-foreground">
+              {habit.category}
+            </p>
           </div>
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-lg border bg-muted/30 p-4">
-              <p className="text-sm text-muted-foreground">Toplam tamamlanan</p>
+        </div>
 
-              <p className="mt-1 text-xl font-semibold">
-                {totalCompletedDays} gün
-              </p>
-            </div>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <div className="rounded-lg border p-4">
+            <p className="text-sm text-muted-foreground">Toplam tamamlanan</p>
 
-            <div className="rounded-lg border bg-muted/30 p-4">
-              <p className="text-sm text-muted-foreground">Mevcut seri</p>
-
-              <p className="mt-1 text-xl font-semibold">{currentStreak} gün</p>
-            </div>
-
-            <div className="rounded-lg border bg-muted/30 p-4">
-              <p className="text-sm text-muted-foreground">Son 7 gün</p>
-
-              <p className="mt-1 text-xl font-semibold">%{lastSevenDaysRate}</p>
-            </div>
+            <p className="mt-1 text-2xl font-semibold">
+              {totalCompletedDays} gün
+            </p>
           </div>
 
-          <p className="mt-6 text-sm text-muted-foreground">
-            Yıllık takip görünümü burada gösterilecek.
-          </p>
-        </section>
+          <div className="rounded-lg border p-4">
+            <p className="text-sm text-muted-foreground">Mevcut seri</p>
+
+            <p className="mt-1 text-2xl font-semibold">{currentStreak} gün</p>
+          </div>
+        </div>
+
+        <HabitHeatmap
+          year={selectedYear}
+          completedDates={completedDates}
+          color={habit.color}
+        />
       </div>
-    </main>
+    </div>
   );
 }
 
