@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { habitIcons } from "@/features/habits/habitOptions";
 import { getTodayDate } from "@/lib/date";
+import { Route, Routes } from "react-router";
+import HabitDetailPage from "@/features/habits/HabitDetailPage";
 
 function App() {
   const habitColors = [
@@ -135,155 +137,172 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="border-b bg-background">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">HabitGrid</h1>
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <div className="min-h-screen bg-muted/30">
+            <header className="border-b bg-background">
+              <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
+                <div>
+                  <h1 className="text-2xl font-bold tracking-tight">
+                    HabitGrid
+                  </h1>
 
-            <p className="mt-1 text-sm text-muted-foreground">
-              Alışkanlıklarını takip et, ilerlemeni gör.
-            </p>
-          </div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Alışkanlıklarını takip et, ilerlemeni gör.
+                  </p>
+                </div>
 
-          <Button
-            onClick={() => {
-              if (isFormOpen) {
-                handleCancel();
-              } else {
-                setIsFormOpen(true);
-              }
-            }}
-          >
-            {isFormOpen ? "Formu kapat" : "Alışkanlık ekle"}
-          </Button>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        {isFormOpen && (
-          <section className="mb-8 rounded-xl border bg-background p-5">
-            <h2 className="text-lg font-semibold">
-              {editingHabitId ? "Alışkanlığı düzenle" : "Yeni alışkanlık"}
-            </h2>
-            <form className="mt-4" onSubmit={handleSubmit}>
-              <label className="text-sm font-medium" htmlFor="habit-name">
-                Alışkanlık adı
-              </label>
-
-              <Input
-                id="habit-name"
-                className="mt-2"
-                placeholder="Örneğin: Kitap okumak"
-                value={habitName}
-                onChange={(event) => {
-                  setHabitName(event.target.value);
-                  setError("");
-                }}
-                aria-invalid={Boolean(error)}
-                aria-describedby={error ? "habit-name-error" : undefined}
-                autoFocus
-              />
-
-              {error && (
-                <p
-                  id="habit-name-error"
-                  className="mt-2 text-sm text-destructive"
+                <Button
+                  onClick={() => {
+                    if (isFormOpen) {
+                      handleCancel();
+                    } else {
+                      setIsFormOpen(true);
+                    }
+                  }}
                 >
-                  {error}
-                </p>
-              )}
-
-              <fieldset className="mt-4">
-                <legend className="text-sm font-medium">
-                  Alışkanlık rengi
-                </legend>
-
-                <div className="mt-2 flex flex-wrap gap-3">
-                  {habitColors.map((color) => (
-                    <button
-                      key={color.value}
-                      type="button"
-                      className={`h-9 w-9 rounded-full border ${
-                        habitColor === color.value
-                          ? "ring-2 ring-primary ring-offset-2"
-                          : ""
-                      }`}
-                      style={{ backgroundColor: color.value }}
-                      onClick={() => setHabitColor(color.value)}
-                      aria-label={color.name}
-                      aria-pressed={habitColor === color.value}
-                      title={color.name}
-                    />
-                  ))}
-                </div>
-              </fieldset>
-
-              <fieldset className="mt-4">
-                <legend className="text-sm font-medium">
-                  Alışkanlık simgesi
-                </legend>
-
-                <div className="mt-2 flex flex-wrap gap-3">
-                  {habitIcons.map(({ name, value, Icon }) => (
-                    <button
-                      key={value}
-                      type="button"
-                      className={`flex h-10 w-10 items-center justify-center rounded-lg border ${
-                        habitIcon === value
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "bg-background text-muted-foreground"
-                      }`}
-                      onClick={() => setHabitIcon(value)}
-                      aria-label={`${name} simgesini seç`}
-                      aria-pressed={habitIcon === value}
-                      title={name}
-                    >
-                      <Icon size={20} />
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
-
-              <div className="mt-4 flex gap-2">
-                <Button type="submit">
-                  {editingHabitId ? "Değişiklikleri kaydet" : "Kaydet"}
-                </Button>
-                <Button type="button" variant="outline" onClick={handleCancel}>
-                  İptal
+                  {isFormOpen ? "Formu kapat" : "Alışkanlık ekle"}
                 </Button>
               </div>
-            </form>
-          </section>
-        )}
+            </header>
 
-        <section>
-          <h2 className="text-xl font-semibold">Alışkanlıklarım</h2>
+            <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+              {isFormOpen && (
+                <section className="mb-8 rounded-xl border bg-background p-5">
+                  <h2 className="text-lg font-semibold">
+                    {editingHabitId ? "Alışkanlığı düzenle" : "Yeni alışkanlık"}
+                  </h2>
+                  <form className="mt-4" onSubmit={handleSubmit}>
+                    <label className="text-sm font-medium" htmlFor="habit-name">
+                      Alışkanlık adı
+                    </label>
 
-          {habits.length === 0 ? (
-            <div className="mt-4 rounded-xl border border-dashed bg-background px-6 py-16 text-center">
-              <h3 className="font-medium">Henüz alışkanlık eklenmedi</h3>
+                    <Input
+                      id="habit-name"
+                      className="mt-2"
+                      placeholder="Örneğin: Kitap okumak"
+                      value={habitName}
+                      onChange={(event) => {
+                        setHabitName(event.target.value);
+                        setError("");
+                      }}
+                      aria-invalid={Boolean(error)}
+                      aria-describedby={error ? "habit-name-error" : undefined}
+                      autoFocus
+                    />
 
-              <p className="mt-2 text-sm text-muted-foreground">
-                Takip etmeye başlamak için ilk alışkanlığını oluştur.
-              </p>
-            </div>
-          ) : (
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {habits.map((habit) => (
-                <HabitCard
-                  key={habit.id}
-                  habit={habit}
-                  onDelete={handleDelete}
-                  onEdit={handleEdit}
-                  onToggleToday={handleToggleToday}
-                />
-              ))}
-            </div>
-          )}
-        </section>
-      </main>
-    </div>
+                    {error && (
+                      <p
+                        id="habit-name-error"
+                        className="mt-2 text-sm text-destructive"
+                      >
+                        {error}
+                      </p>
+                    )}
+
+                    <fieldset className="mt-4">
+                      <legend className="text-sm font-medium">
+                        Alışkanlık rengi
+                      </legend>
+
+                      <div className="mt-2 flex flex-wrap gap-3">
+                        {habitColors.map((color) => (
+                          <button
+                            key={color.value}
+                            type="button"
+                            className={`h-9 w-9 rounded-full border ${
+                              habitColor === color.value
+                                ? "ring-2 ring-primary ring-offset-2"
+                                : ""
+                            }`}
+                            style={{ backgroundColor: color.value }}
+                            onClick={() => setHabitColor(color.value)}
+                            aria-label={color.name}
+                            aria-pressed={habitColor === color.value}
+                            title={color.name}
+                          />
+                        ))}
+                      </div>
+                    </fieldset>
+
+                    <fieldset className="mt-4">
+                      <legend className="text-sm font-medium">
+                        Alışkanlık simgesi
+                      </legend>
+
+                      <div className="mt-2 flex flex-wrap gap-3">
+                        {habitIcons.map(({ name, value, Icon }) => (
+                          <button
+                            key={value}
+                            type="button"
+                            className={`flex h-10 w-10 items-center justify-center rounded-lg border ${
+                              habitIcon === value
+                                ? "border-primary bg-primary text-primary-foreground"
+                                : "bg-background text-muted-foreground"
+                            }`}
+                            onClick={() => setHabitIcon(value)}
+                            aria-label={`${name} simgesini seç`}
+                            aria-pressed={habitIcon === value}
+                            title={name}
+                          >
+                            <Icon size={20} />
+                          </button>
+                        ))}
+                      </div>
+                    </fieldset>
+
+                    <div className="mt-4 flex gap-2">
+                      <Button type="submit">
+                        {editingHabitId ? "Değişiklikleri kaydet" : "Kaydet"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleCancel}
+                      >
+                        İptal
+                      </Button>
+                    </div>
+                  </form>
+                </section>
+              )}
+
+              <section>
+                <h2 className="text-xl font-semibold">Alışkanlıklarım</h2>
+
+                {habits.length === 0 ? (
+                  <div className="mt-4 rounded-xl border border-dashed bg-background px-6 py-16 text-center">
+                    <h3 className="font-medium">Henüz alışkanlık eklenmedi</h3>
+
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Takip etmeye başlamak için ilk alışkanlığını oluştur.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {habits.map((habit) => (
+                      <HabitCard
+                        key={habit.id}
+                        habit={habit}
+                        onDelete={handleDelete}
+                        onEdit={handleEdit}
+                        onToggleToday={handleToggleToday}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            </main>
+          </div>
+        }
+      />
+      <Route
+        path="/aliskanliklar/:habitId"
+        element={<HabitDetailPage habits={habits} />}
+      />
+    </Routes>
   );
 }
 

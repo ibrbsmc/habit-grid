@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { habitIcons } from "@/features/habits/habitOptions";
 import { getTodayDate } from "@/lib/date";
 import { getCurrentStreak, getLastSevenDaysRate } from "@/lib/habitStats";
+import { Link } from "react-router";
 
 function HabitCard({ habit, onDelete, onEdit, onToggleToday }) {
   const HabitIcon =
@@ -28,22 +29,27 @@ function HabitCard({ habit, onDelete, onEdit, onToggleToday }) {
   return (
     <article className="rounded-xl border bg-background p-5">
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <span
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border"
-              style={{ color: habit.color ?? "#2563eb" }}
-            >
-              <HabitIcon size={19} />
-            </span>
+        <Link
+          to={`/aliskanliklar/${habit.id}`}
+          className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <div>
+            <div className="flex items-center gap-3">
+              <span
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border"
+                style={{ color: habit.color ?? "#2563eb" }}
+              >
+                <HabitIcon size={19} />
+              </span>
 
-            <h3 className="font-semibold">{habit.name}</h3>
+              <h3 className="font-semibold">{habit.name}</h3>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Toplam {totalCompletedDays} gün tamamlandı. <br /> Mevcut seri:{" "}
+              {currentStreak} gün <br /> Son hafta: %{lastSevenDaysRate}
+            </p>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Toplam {totalCompletedDays} gün tamamlandı. <br /> Mevcut seri:{" "}
-            {currentStreak} gün <br /> Son hafta: %{lastSevenDaysRate}
-          </p>
-        </div>
+        </Link>
         <div className="flex gap-2">
           <Button
             type="button"
