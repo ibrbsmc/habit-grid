@@ -10,18 +10,23 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { habitIcons } from "@/features/habits/habitOptions";
 
 function HabitCard({ habit, onDelete, onEdit }) {
+  const HabitIcon =
+    habitIcons.find((icon) => icon.value === habit.icon)?.Icon ??
+    habitIcons[0].Icon;
   return (
     <article className="rounded-xl border bg-background p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
             <span
-              className="h-3 w-3 shrink-0 rounded-full"
-              style={{ backgroundColor: habit.color ?? "#2563eb" }}
-              aria-hidden="true"
-            />
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border"
+              style={{ color: habit.color ?? "#2563eb" }}
+            >
+              <HabitIcon size={19} />
+            </span>
 
             <h3 className="font-semibold">{habit.name}</h3>
           </div>

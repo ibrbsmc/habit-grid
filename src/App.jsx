@@ -2,6 +2,7 @@ import HabitCard from "@/features/habits/components/HabitCard";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { habitIcons } from "@/features/habits/habitOptions";
 
 function App() {
   const habitColors = [
@@ -21,6 +22,7 @@ function App() {
   const [error, setError] = useState("");
   const [editingHabitId, setEditingHabitId] = useState(null);
   const [habitColor, setHabitColor] = useState("#2563eb");
+  const [habitIcon, setHabitIcon] = useState("target");
 
   useEffect(() => {
     localStorage.setItem("habit-grid-habits", JSON.stringify(habits));
@@ -52,7 +54,12 @@ function App() {
       setHabits((currentHabits) =>
         currentHabits.map((habit) =>
           habit.id === editingHabitId
-            ? { ...habit, name: cleanedHabitName, color: habitColor }
+            ? {
+                ...habit,
+                name: cleanedHabitName,
+                color: habitColor,
+                icon: habitIcon,
+              }
             : habit,
         ),
       );
@@ -61,6 +68,7 @@ function App() {
         id: crypto.randomUUID(),
         name: cleanedHabitName,
         color: habitColor,
+        icon: habitIcon,
       };
 
       setHabits((currentHabits) => [...currentHabits, newHabit]);
@@ -75,6 +83,7 @@ function App() {
     setError("");
     setIsFormOpen(false);
     setHabitColor("#2563eb"); // habitColor yalnızca formda seçili olan geçici rengi tutar; kartın rengi ise habits dizisindeki habit.color değerinden gelir. Rengi sıfırlamasaydık yeni alışkanlık formu kırmızı seçili olarak açılırdı. Sıfırladığımız için yeni form varsayılan maviyle açılır.
+    setHabitIcon("target");
   }
 
   function handleDelete(habitId) {
@@ -89,6 +98,7 @@ function App() {
     setHabitName(habit.name);
     setError("");
     setHabitColor(habit.color ?? "#2563eb"); // Alışkanlığın rengi varsa onu kullanır.
+    setHabitIcon(habit.icon ?? "target");
     setIsFormOpen(true);
   }
 
@@ -173,6 +183,32 @@ function App() {
                       aria-pressed={habitColor === color.value}
                       title={color.name}
                     />
+                  ))}
+                </div>
+              </fieldset>
+
+              <fieldset className="mt-4">
+                <legend className="text-sm font-medium">
+                  Alışkanlık simgesi
+                </legend>
+
+                <div className="mt-2 flex flex-wrap gap-3">
+                  {habitIcons.map(({ name, value, Icon }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={`flex h-10 w-10 items-center justify-center rounded-lg border ${
+                        habitIcon === value
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "bg-background text-muted-foreground"
+                      }`}
+                      onClick={() => setHabitIcon(value)}
+                      aria-label={`${name} simgesini seç`}
+                      aria-pressed={habitIcon === value}
+                      title={name}
+                    >
+                      <Icon size={20} />
+                    </button>
                   ))}
                 </div>
               </fieldset>
