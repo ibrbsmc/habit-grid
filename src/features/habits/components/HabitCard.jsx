@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { habitIcons } from "@/features/habits/habitOptions";
 import { getTodayDate } from "@/lib/date";
+import { getCurrentStreak, getLastSevenDaysRate } from "@/lib/habitStats";
 
 function HabitCard({ habit, onDelete, onEdit, onToggleToday }) {
   const HabitIcon =
@@ -20,6 +21,9 @@ function HabitCard({ habit, onDelete, onEdit, onToggleToday }) {
 
   const today = getTodayDate();
   const isCompletedToday = (habit.completedDates ?? []).includes(today);
+  const totalCompletedDays = (habit.completedDates ?? []).length;
+  const currentStreak = getCurrentStreak(habit.completedDates);
+  const lastSevenDaysRate = getLastSevenDaysRate(habit.completedDates);
 
   return (
     <article className="rounded-xl border bg-background p-5">
@@ -36,9 +40,8 @@ function HabitCard({ habit, onDelete, onEdit, onToggleToday }) {
             <h3 className="font-semibold">{habit.name}</h3>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            {isCompletedToday
-              ? "Bugün tamamlandı."
-              : "Bugün henüz tamamlanmadı."}
+            Toplam {totalCompletedDays} gün tamamlandı. <br /> Mevcut seri:{" "}
+            {currentStreak} gün <br /> Son hafta: %{lastSevenDaysRate}
           </p>
         </div>
         <div className="flex gap-2">
