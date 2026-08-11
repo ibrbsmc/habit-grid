@@ -82,21 +82,30 @@ function HabitHeatmap({
                     if (target && dailyAmount > 0) {
                       intensity = Math.min(dailyAmount / target.amount, 1);
                     }
-
                     return (
-                      <div
-                        className={`h-3 w-3 rounded-sm ${
-                          intensity === 0 ? "bg-muted" : ""
-                        }`}
-                        style={
-                          intensity > 0
-                            ? {
-                                backgroundColor: color,
-                                opacity: 0.25 + intensity * 0.75,
-                              }
-                            : undefined
-                        }
-                      />
+                      <div key={date} className="group relative size-3">
+                        <div
+                          className={`size-3 rounded-sm ${
+                            intensity === 0 ? "bg-muted" : ""
+                          }`}
+                          style={
+                            intensity > 0
+                              ? {
+                                  backgroundColor: color,
+                                  opacity: 0.25 + intensity * 0.75,
+                                }
+                              : undefined
+                          }
+                        />
+
+                        <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs text-background shadow-md group-hover:block">
+                          {target
+                            ? `${date}: ${dailyAmount} / ${target.amount} ${target.unit}`
+                            : `${date}: ${
+                                isCompleted ? "Tamamlandı" : "Tamamlanmadı"
+                              }`}
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
@@ -105,6 +114,41 @@ function HabitHeatmap({
           </div>
         </div>
       </div>
+      {target ? (
+        <div className="mt-3 flex items-center justify-end gap-1">
+          <span className="mr-1 text-xs text-muted-foreground">Az</span>
+
+          <span className="size-3 rounded-sm bg-muted" />
+
+          {[0.25, 0.5, 0.75, 1].map((opacity) => (
+            <span
+              key={opacity}
+              className="size-3 rounded-sm"
+              style={{
+                backgroundColor: color,
+                opacity,
+              }}
+            />
+          ))}
+
+          <span className="ml-1 text-xs text-muted-foreground">Hedef</span>
+        </div>
+      ) : (
+        <div className="mt-3 flex items-center justify-end gap-3 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <span className="size-3 rounded-sm bg-muted" />
+            <span>Tamamlanmadı</span>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <span
+              className="size-3 rounded-sm"
+              style={{ backgroundColor: color }}
+            />
+            <span>Tamamlandı</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
