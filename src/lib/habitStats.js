@@ -1,4 +1,4 @@
-import { formatDate } from "@/lib/date";
+import { formatDate, getPreviousDate } from "@/lib/date";
 
 export function getCurrentStreak(completedDates = []) {
   // Seri hesabına bugünden başla.
@@ -37,4 +37,32 @@ export function getLastSevenDaysRate(completedDates = []) {
   }
 
   return Math.round((completedDayCount / 7) * 100);
+}
+
+export function getLongestStreak(completedDates = []) {
+  if (completedDates.length === 0) {
+    return 0;
+  }
+
+  const sortedDates = [...completedDates].sort();
+
+  let longestStreak = 1;
+  let currentStreak = 1;
+
+  for (let index = 1; index < sortedDates.length; index++) {
+    const currentDate = sortedDates[index];
+    const previousCompletedDate = sortedDates[index - 1];
+
+    if (getPreviousDate(currentDate) === previousCompletedDate) {
+      currentStreak += 1;
+    } else {
+      currentStreak = 1;
+    }
+
+    if (currentStreak > longestStreak) {
+      longestStreak = currentStreak;
+    }
+  }
+
+  return longestStreak;
 }

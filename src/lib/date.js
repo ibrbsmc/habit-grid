@@ -64,3 +64,22 @@ export function getShortMonthName(date) {
     month: "short",
   });
 }
+
+export function getPreviousDate(date) {
+  const previousDate = new Date(`${date}T00:00:00Z`);
+
+  previousDate.setUTCDate(previousDate.getUTCDate() - 1);
+
+  return previousDate.toISOString().slice(0, 10);
+}
+
+export function getStartOfWeek(date) {
+  const currentDate = new Date(`${date}T00:00:00Z`);
+  const dayIndex = currentDate.getUTCDay();
+
+  const daysSinceMonday = dayIndex === 0 ? 6 : dayIndex - 1;
+
+  currentDate.setUTCDate(currentDate.getUTCDate() - daysSinceMonday);
+
+  return currentDate.toISOString().slice(0, 10);
+}
