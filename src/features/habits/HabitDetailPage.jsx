@@ -1,6 +1,7 @@
 import HabitExportPanel from "@/features/habits/components/HabitExportPanel";
 import HabitHeatmap from "@/features/habits/components/HabitHeatmap";
 import HabitHistoryEditor from "@/features/habits/components/HabitHistoryEditor";
+import HabitTodayAmountForm from "@/features/habits/components/HabitTodayAmountForm";
 import { getDatesInYear, getStartOfWeek, getTodayDate } from "@/lib/date";
 import { useParams } from "react-router";
 import {
@@ -127,6 +128,14 @@ function HabitDetailPage({ habits, onUpdateDate }) {
           <h1 className="text-2xl font-bold">{habit.name}</h1>
         </div>
 
+        {habit.target && (
+          <HabitTodayAmountForm
+            key={habit.id}
+            habit={habit}
+            onUpdateDate={onUpdateDate}
+          />
+        )}
+
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className="rounded-lg border p-4">
             <p className="text-sm text-muted-foreground">Toplam tamamlanan</p>
@@ -199,7 +208,11 @@ function HabitDetailPage({ habits, onUpdateDate }) {
           target={habit.target}
         />
 
-        <HabitHistoryEditor habit={habit} onUpdateDate={onUpdateDate} />
+        <HabitHistoryEditor
+          key={habit.id}
+          habit={habit}
+          onUpdateDate={onUpdateDate}
+        />
 
         <HabitExportPanel
           habit={habit}

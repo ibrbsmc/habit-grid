@@ -236,10 +236,6 @@ function App() {
     );
   }
 
-  function handleUpdateTodayAmount(habitId, amount) {
-    handleUpdateDate(habitId, getTodayDate(), { amount });
-  }
-
   return (
     <Routes>
       <Route
@@ -473,7 +469,6 @@ function App() {
                         onDelete={handleDelete}
                         onEdit={handleEdit}
                         onToggleToday={handleToggleToday}
-                        onUpdateTodayAmount={handleUpdateTodayAmount}
                       />
                     ))}
                   </div>

@@ -5,18 +5,28 @@ import { useState } from "react";
 
 function HabitHistoryEditor({ habit, onUpdateDate }) {
   const today = getTodayDate();
-  const initialDate = getPreviousDate(today);
+  const lastPastDate = getPreviousDate(today);
   const completedDates = habit.completedDates ?? [];
 
-  const [selectedDate, setSelectedDate] = useState(initialDate);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(lastPastDate);
   const [isCompleted, setIsCompleted] = useState(
-    completedDates.includes(initialDate),
+    completedDates.includes(lastPastDate),
   );
   const [amount, setAmount] = useState(
-    habit.dailyAmounts?.[initialDate] ?? "",
+    habit.dailyAmounts?.[lastPastDate] ?? "",
   );
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+
+  function handleOpen() {
+    setSelectedDate(lastPastDate);
+    setIsCompleted(completedDates.includes(lastPastDate));
+    setAmount(habit.dailyAmounts?.[lastPastDate] ?? "");
+    setError("");
+    setMessage("");
+    setIsOpen(true);
+  }
 
   function handleDateChange(event) {
     const date = event.target.value;
@@ -31,8 +41,8 @@ function HabitHistoryEditor({ habit, onUpdateDate }) {
   function handleSubmit(event) {
     event.preventDefault();
 
-    if (!selectedDate || selectedDate > today) {
-      setError("Bugünden sonraki bir tarih düzenlenemez.");
+    if (!selectedDate || selectedDate > lastPastDate) {
+      setError("Yalnızca geçmiş bir tarih düzenlenebilir.");
       return;
     }
 
@@ -53,13 +63,35 @@ function HabitHistoryEditor({ habit, onUpdateDate }) {
     setMessage("Kayıt güncellendi.");
   }
 
+  if (!isOpen) {
+    return (
+      <div className="mt-8">
+        <Button type="button" variant="outline" onClick={handleOpen}>
+          Geçmiş bir kaydı düzenle
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <section className="mt-8 rounded-xl border p-5">
-      <h2 className="text-lg font-semibold">Geçmiş günü düzenle</h2>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold">Geçmiş günü düzenle</h2>
 
-      <p className="mt-1 text-sm text-muted-foreground">
-        Kaçırdığın veya yanlış kaydettiğin bir günü güncelleyebilirsin.
-      </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Kaçırdığın veya yanlış kaydettiğin bir günü güncelleyebilirsin.
+          </p>
+        </div>
+
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => setIsOpen(false)}
+        >
+          Kapat
+        </Button>
+      </div>
 
       <form className="mt-4 grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit}>
         <div>
@@ -70,7 +102,7 @@ function HabitHistoryEditor({ habit, onUpdateDate }) {
           <Input
             id="history-date"
             type="date"
-            max={today}
+            max={lastPastDate}
             className="mt-2"
             value={selectedDate}
             onChange={handleDateChange}

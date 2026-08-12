@@ -14,15 +14,8 @@ import { habitIcons } from "@/features/habits/habitOptions";
 import { getTodayDate } from "@/lib/date";
 import { getCurrentStreak, getLastSevenDaysRate } from "@/lib/habitStats";
 import { Link } from "react-router";
-import { Input } from "@/components/ui/input";
 
-function HabitCard({
-  habit,
-  onDelete,
-  onEdit,
-  onToggleToday,
-  onUpdateTodayAmount,
-}) {
+function HabitCard({ habit, onDelete, onEdit, onToggleToday }) {
   const HabitIcon =
     habitIcons.find((icon) => icon.value === habit.icon)?.Icon ??
     habitIcons[0].Icon;
@@ -101,32 +94,8 @@ function HabitCard({
       </div>
       {habit.target ? (
         <div className="mt-4 rounded-lg border bg-muted/30 p-3">
-          <label
-            className="text-sm font-medium"
-            htmlFor={`today-amount-${habit.id}`}
-          >
-            Bugünkü miktar
-          </label>
-
-          <div className="mt-2 flex items-center gap-2">
-            <Input
-              id={`today-amount-${habit.id}`}
-              type="number"
-              min="0"
-              step="any"
-              value={todayAmount}
-              onChange={(event) =>
-                onUpdateTodayAmount(habit.id, event.target.value)
-              }
-            />
-
-            <span className="shrink-0 text-sm text-muted-foreground">
-              {habit.target.unit}
-            </span>
-          </div>
-
           <p
-            className={`mt-2 text-sm ${
+            className={`text-sm ${
               isCompletedToday
                 ? "font-medium text-emerald-600"
                 : "text-muted-foreground"
@@ -136,6 +105,13 @@ function HabitCard({
               ? `Bugünkü hedef tamamlandı: ${todayAmount} ${habit.target.unit}`
               : `Bugünkü ilerleme: ${todayAmount || 0} / ${habit.target.amount} ${habit.target.unit}`}
           </p>
+
+          <Link
+            to={`/aliskanliklar/${habit.id}`}
+            className="mt-3 inline-flex h-8 items-center justify-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
+          >
+            Bugünkü miktarı gir
+          </Link>
         </div>
       ) : (
         <Button
