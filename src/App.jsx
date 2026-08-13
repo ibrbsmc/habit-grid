@@ -232,8 +232,9 @@ function App() {
       <Route
         path="/"
         element={
-          <div className="min-h-screen bg-muted/20">
-            <header className="border-b bg-background">
+          <div className="min-h-screen bg-transparent">
+            {" "}
+            <header className="border-b-gray-800 border bg-transparent">
               <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
                 <div className="flex flex-row items-center gap-2">
                   <img
@@ -261,7 +262,6 @@ function App() {
                 </Button>
               </div>
             </header>
-
             <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
               {isFormOpen && (
                 <section className="mb-6 rounded-xl border bg-background p-4 shadow-xs">
@@ -448,7 +448,7 @@ function App() {
                 <h2 className="text-xl">Alışkanlıklarım</h2>
 
                 {habits.length === 0 ? (
-                  <div className="mt-4 rounded-xl border border-dashed bg-background px-5 py-12 text-center">
+                  <div className="mt-4 rounded-xl  px-5 py-12 text-center">
                     <h3 className="font-normal">Henüz alışkanlık eklenmedi</h3>
 
                     <p className="mt-2 text-sm text-muted-foreground">

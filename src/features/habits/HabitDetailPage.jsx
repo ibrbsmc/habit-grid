@@ -123,7 +123,8 @@ function HabitDetailPage({ habits, onUpdateDate }) {
   };
 
   return (
-    <div className="min-h-screen bg-muted/20">
+    <div className="min-h-screen bg-transparent">
+      {" "}
       <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-6">
         <Link
           to="/"
