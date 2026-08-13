@@ -1,10 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getTodayDate } from "@/lib/date";
+import { cn } from "@/lib/utils";
+import { Save } from "lucide-react";
 import { useState } from "react";
 
-function HabitTodayAmountForm({ habit, onUpdateDate }) {
+function HabitTodayAmountForm({ habit, onUpdateDate, className }) {
   const today = getTodayDate();
+  const inputId = `today-amount-${habit.id}`;
   const [amount, setAmount] = useState(habit.dailyAmounts?.[today] ?? "");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -18,12 +21,14 @@ function HabitTodayAmountForm({ habit, onUpdateDate }) {
     Math.round((progressAmount / habit.target.amount) * 100),
     100,
   );
-  const isTargetReached = progressAmount >= habit.target.amount;
 
   function handleSubmit(event) {
     event.preventDefault();
 
-    if (amount !== "" && (!Number.isFinite(numericAmount) || numericAmount < 0)) {
+    if (
+      amount !== "" &&
+      (!Number.isFinite(numericAmount) || numericAmount < 0)
+    ) {
       setError("Miktar sıfır veya daha büyük olmalıdır.");
       return;
     }
@@ -32,31 +37,54 @@ function HabitTodayAmountForm({ habit, onUpdateDate }) {
     setError("");
     setMessage(
       amount === "" || numericAmount === 0
-        ? "Bugünkü kayıt kaldırıldı."
-        : "Bugünkü miktar kaydedildi.",
+        ? "Günlük kayıt kaldırıldı."
+        : "İlerleme kaydedildi.",
     );
   }
 
   return (
-    <section className="mt-6 rounded-xl border bg-muted/30 p-5">
-      <h2 className="text-lg font-semibold">Bugünün kaydı</h2>
+    <section className={cn("rounded-lg p-3", className)}>
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <p className="text-xs font-normal text-muted-foreground">
+            Günlük ilerleme
+          </p>
 
-      <p className="mt-1 text-sm text-muted-foreground">
-        Bugün yaptığın miktarı gir ve ilerlemeni kaydet.
-      </p>
+          <p className="mt-0.5 text-sm font-medium leading-tight">
+            {progressAmount} / {habit.target.amount} {habit.target.unit}
+          </p>
+        </div>
 
-      <form className="mt-4" onSubmit={handleSubmit}>
-        <label className="text-sm font-medium" htmlFor="today-amount">
-          Bugünkü miktar
-        </label>
+        <span className="text-xs font-normal text-muted-foreground">
+          %{progressRate}
+        </span>
+      </div>
 
-        <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="flex flex-1 items-center gap-2">
+      <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{
+            width: `${progressRate}%`,
+            backgroundColor: habit.color,
+          }}
+        />
+      </div>
+
+      <form className="mt-2.5" onSubmit={handleSubmit}>
+        <label
+          className="sr-only"
+          htmlFor={inputId}
+        ></label>
+
+        <div className="flex items-center gap-2">
+          <div className="min-w-0 flex-1">
             <Input
-              id="today-amount"
+              id={inputId}
               type="number"
               min="0"
               step="any"
+              className="h-9 bg-background font-normal text-foreground"
+              placeholder="İlerleme gir"
               value={amount}
               onChange={(event) => {
                 setAmount(event.target.value);
@@ -65,46 +93,23 @@ function HabitTodayAmountForm({ habit, onUpdateDate }) {
               }}
               aria-invalid={Boolean(error)}
             />
-
-            <span className="shrink-0 text-sm text-muted-foreground">
-              {habit.target.unit}
-            </span>
           </div>
 
-          <Button type="submit">Bugünkü kaydı kaydet</Button>
+          <Button
+            type="submit"
+            variant="outline"
+            className="h-9 bg-white px-3 text-foreground hover:bg-muted"
+          >
+            <Save />
+            Kaydet
+          </Button>
         </div>
 
-        <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-full rounded-full transition-all"
-            style={{
-              width: `${progressRate}%`,
-              backgroundColor: habit.color,
-            }}
-          />
-        </div>
-
-        <p
-          className={`mt-2 text-sm ${
-            isTargetReached
-              ? "font-medium text-emerald-600"
-              : "text-muted-foreground"
-          }`}
-        >
-          {isTargetReached
-            ? `Günlük hedef tamamlandı: ${progressAmount} ${habit.target.unit}`
-            : `İlerleme: ${progressAmount} / ${habit.target.amount} ${habit.target.unit}`}
-        </p>
-
-        <p className="mt-1 text-xs text-muted-foreground">
-          Alanı boş bırakıp kaydedersen bugünkü miktar kaydı kaldırılır.
-        </p>
-
-        {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
+        {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
 
         {message && (
           <p
-            className="mt-3 text-sm font-medium text-emerald-600"
+            className="mt-2 text-xs font-medium text-emerald-600"
             aria-live="polite"
           >
             {message}

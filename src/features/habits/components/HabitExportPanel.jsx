@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import HabitHeatmap from "@/features/habits/components/HabitHeatmap";
+import { habitIcons } from "@/features/habits/habitOptions";
 import { toJpeg, toPng } from "html-to-image";
+import { Download } from "lucide-react";
 import { useRef, useState } from "react";
 
 const exportSizes = {
@@ -30,6 +32,9 @@ function HabitExportPanel({ habit, year, statistics }) {
 
   const selectedSize = exportSizes[size];
   const isStory = size === "instagramStory";
+  const HabitIcon =
+    habitIcons.find((icon) => icon.value === habit.icon)?.Icon ??
+    habitIcons[0].Icon;
 
   async function handleDownload() {
     if (!exportCardRef.current) {
@@ -71,22 +76,22 @@ function HabitExportPanel({ habit, year, statistics }) {
   }
 
   return (
-    <section className="mt-8 rounded-xl border p-5">
-      <h2 className="text-lg font-semibold">İlerlemeyi indir</h2>
+    <section className="mt-4 rounded-xl border bg-background p-4 shadow-xs">
+      <h2 className="text-base font-normal">İlerlemeyi indir</h2>
 
       <p className="mt-1 text-sm text-muted-foreground">
-        İstatistiklerini PNG veya JPEG olarak paylaşmaya hazır şekilde indir.
+        İstatistiklerini paylaşmaya hazır şekilde indir.
       </p>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="text-sm font-medium" htmlFor="export-format">
+          <label className="text-sm font-normal" htmlFor="export-format">
             Dosya türü
           </label>
 
           <select
             id="export-format"
-            className="mt-2 h-9 w-full rounded-md border bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="mt-1.5 h-9 w-full rounded-lg border bg-background px-3 text-sm font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring"
             value={format}
             onChange={(event) => setFormat(event.target.value)}
           >
@@ -96,13 +101,13 @@ function HabitExportPanel({ habit, year, statistics }) {
         </div>
 
         <div>
-          <label className="text-sm font-medium" htmlFor="export-size">
+          <label className="text-sm font-normal" htmlFor="export-size">
             Görsel boyutu
           </label>
 
           <select
             id="export-size"
-            className="mt-2 h-9 w-full rounded-md border bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="mt-1.5 h-9 w-full rounded-lg border bg-background px-3 text-sm font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring"
             value={size}
             onChange={(event) => setSize(event.target.value)}
           >
@@ -119,11 +124,12 @@ function HabitExportPanel({ habit, year, statistics }) {
 
       <Button
         type="button"
-        className="mt-4"
+        className="mt-3"
         disabled={isExporting}
         onClick={handleDownload}
       >
-        {isExporting ? "Görsel hazırlanıyor..." : "Görseli indir"}
+        <Download />
+        {isExporting ? "Görsel hazırlanıyor..." : "İndir"}
       </Button>
 
       <div
@@ -140,63 +146,84 @@ function HabitExportPanel({ habit, year, statistics }) {
         >
           <div
             className={`flex h-full flex-col ${
-              isStory ? "justify-center px-20 py-28" : "p-16"
+              isStory ? "justify-center px-16 py-28" : "p-14"
             }`}
           >
-            <div className="flex items-center justify-between gap-8">
-              <div>
-                <p className="text-2xl font-semibold text-zinc-500">
-                  HabitGrid
-                </p>
-                <h2 className="mt-2 text-5xl font-bold">{habit.name}</h2>
-              </div>
+            <header className="flex items-center justify-between gap-8">
+              <div className="flex min-w-0 items-center gap-4">
+                <HabitIcon
+                  className="size-10 shrink-0"
+                  style={{ color: habit.color }}
+                  strokeWidth={1.8}
+                />
 
-              <span
-                className="size-16 shrink-0 rounded-2xl"
-                style={{ backgroundColor: habit.color }}
-              />
-            </div>
-
-            <div className="mt-12 grid grid-cols-4 gap-4">
-              {[
-                ["Toplam tamamlanan", `${statistics.totalCompletedDays} gün`],
-                ["Mevcut seri", `${statistics.currentStreak} gün`],
-                ["En uzun seri", `${statistics.longestStreak} gün`],
-                ["Yıllık başarı", `%${statistics.yearlySuccessRate}`],
-              ].map(([label, value]) => (
-                <div key={label} className="rounded-2xl border p-5">
-                  <p className="text-base text-zinc-500">{label}</p>
-                  <p className="mt-2 text-3xl font-semibold">{value}</p>
+                <div className="min-w-0">
+                  <p className="text-base font-normal text-zinc-500">
+                    HabitGrid
+                  </p>
+                  <h2 className="mt-1 truncate text-3xl font-normal">
+                    {habit.name}
+                  </h2>
                 </div>
-              ))}
-            </div>
+              </div>
+            </header>
 
-            <div className="mt-4 grid grid-cols-2 gap-4">
-              <div className="rounded-2xl border p-5">
-                <p className="text-base text-zinc-500">En başarılı gün</p>
-                <p className="mt-2 text-2xl font-semibold">
-                  {statistics.bestDayText}
-                </p>
+            <section className="mt-8 rounded-xl border border-zinc-200 p-5">
+              <p className="text-base font-normal text-zinc-500 pb-2">
+                Yıllık İlerleme
+              </p>
+
+              <HabitHeatmap
+                className="mt-3"
+                compact
+                year={year}
+                completedDates={habit.completedDates ?? []}
+                color={habit.color}
+                dailyAmounts={habit.dailyAmounts ?? {}}
+                target={habit.target}
+              />
+            </section>
+
+            <section className="mt-5 overflow-hidden rounded-xl border border-zinc-200">
+              <h3 className="px-5 py-4 text-lg font-normal">İstatistik</h3>
+
+              <div className="grid grid-cols-4 divide-x divide-zinc-200 border-t border-zinc-200">
+                {[
+                  ["Toplam tamamlanan", `${statistics.totalCompletedDays} gün`],
+                  ["Mevcut seri", `${statistics.currentStreak} gün`],
+                  ["En uzun seri", `${statistics.longestStreak} gün`],
+                  ["Yıllık başarı", `%${statistics.yearlySuccessRate}`],
+                ].map(([label, value]) => (
+                  <div key={label} className="p-4">
+                    <p className="text-sm font-normal text-zinc-500">{label}</p>
+                    <p className="mt-1 text-xl font-medium">{value}</p>
+                  </div>
+                ))}
               </div>
 
-              <div className="rounded-2xl border p-5">
-                <p className="text-base text-zinc-500">En başarılı hafta</p>
-                <p className="mt-2 text-2xl font-semibold">
-                  {statistics.bestWeekText}
-                </p>
+              <div className="grid grid-cols-2 divide-x divide-zinc-200 border-t border-zinc-200">
+                <div className="p-4">
+                  <p className="text-sm font-normal text-zinc-500">
+                    En başarılı gün
+                  </p>
+                  <p className="mt-1 text-lg font-medium">
+                    {statistics.bestDayText}
+                  </p>
+                </div>
+
+                <div className="p-4">
+                  <p className="text-sm font-normal text-zinc-500">
+                    En başarılı hafta
+                  </p>
+                  <p className="mt-1 text-lg font-medium">
+                    {statistics.bestWeekText}
+                  </p>
+                </div>
               </div>
-            </div>
+            </section>
 
-            <HabitHeatmap
-              year={year}
-              completedDates={habit.completedDates ?? []}
-              color={habit.color}
-              dailyAmounts={habit.dailyAmounts ?? {}}
-              target={habit.target}
-            />
-
-            <p className="mt-auto pt-8 text-right text-lg font-medium text-zinc-400">
-              Alışkanlıklarını takip et, ilerlemeni gör.
+            <p className="mt-5 text-right text-sm font-normal text-zinc-400">
+              HabitGrid ile oluşturuldu
             </p>
           </div>
         </div>

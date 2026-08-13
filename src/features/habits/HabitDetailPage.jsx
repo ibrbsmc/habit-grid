@@ -2,14 +2,16 @@ import HabitExportPanel from "@/features/habits/components/HabitExportPanel";
 import HabitHeatmap from "@/features/habits/components/HabitHeatmap";
 import HabitHistoryEditor from "@/features/habits/components/HabitHistoryEditor";
 import HabitTodayAmountForm from "@/features/habits/components/HabitTodayAmountForm";
+import { habitIcons } from "@/features/habits/habitOptions";
 import { getDatesInYear, getStartOfWeek, getTodayDate } from "@/lib/date";
-import { useParams } from "react-router";
 import {
   getCurrentStreak,
   getLongestStreak,
   getMostSuccessfulDay,
   getMostSuccessfulWeek,
 } from "@/lib/habitStats";
+import { ArrowLeft } from "lucide-react";
+import { Link, useParams } from "react-router";
 
 function formatWeekRange(week) {
   if (!week) {
@@ -35,72 +37,76 @@ function formatWeekRange(week) {
   return `${formattedStartDate} – ${formattedEndDate} (${week.count} gün)`;
 }
 
+function StatisticItem({ label, value }) {
+  return (
+    <div className="px-3 py-2.5">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-0.5 text-sm font-medium">{value}</p>
+    </div>
+  );
+}
+
 function HabitDetailPage({ habits, onUpdateDate }) {
   const { habitId } = useParams();
-
   const habit = habits.find((habit) => String(habit.id) === habitId);
 
   if (!habit) {
     return (
-      <div className="rounded-xl border bg-card p-6">
-        <h1 className="text-xl font-semibold">Alışkanlık bulunamadı</h1>
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+        <div className="rounded-xl border bg-background p-5">
+          <h1 className="text-xl font-normal">Alışkanlık bulunamadı</h1>
 
-        <p className="mt-2 text-sm text-muted-foreground">
-          Görüntülemek istediğiniz alışkanlık mevcut değil.
-        </p>
-      </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Görüntülemek istediğiniz alışkanlık mevcut değil.
+          </p>
+        </div>
+      </main>
     );
   }
+
+  const HabitIcon =
+    habitIcons.find((icon) => icon.value === habit.icon)?.Icon ??
+    habitIcons[0].Icon;
 
   const completedDates = habit.completedDates ?? [];
   const totalCompletedDays = completedDates.length;
   const currentStreak = getCurrentStreak(completedDates);
-  const selectedYear = new Date().getFullYear();
   const longestStreak = getLongestStreak(completedDates);
   const mostSuccessfulDay = getMostSuccessfulDay(completedDates);
   const mostSuccessfulWeek = getMostSuccessfulWeek(completedDates);
 
-  const yearDates = getDatesInYear(selectedYear);
+  const selectedYear = new Date().getFullYear();
   const today = getTodayDate();
-
-  const trackedDates = yearDates.filter((date) => date <= today);
+  const trackedDates = getDatesInYear(selectedYear).filter(
+    (date) => date <= today,
+  );
   const weekStartDate = getStartOfWeek(today);
   const currentMonth = today.slice(0, 7);
+  const completedDateSet = new Set(completedDates);
 
   const weekDates = trackedDates.filter((date) => date >= weekStartDate);
-
   const monthDates = trackedDates.filter((date) =>
     date.startsWith(currentMonth),
   );
-
   const completedDayCount = trackedDates.filter((date) =>
-    completedDates.includes(date),
+    completedDateSet.has(date),
   ).length;
-
-  const completedDateSet = new Set(completedDates);
-
   const weeklyCompletedDayCount = weekDates.filter((date) =>
     completedDateSet.has(date),
   ).length;
-
   const monthlyCompletedDayCount = monthDates.filter((date) =>
     completedDateSet.has(date),
   ).length;
 
-  const weeklySuccessRate =
-    weekDates.length > 0
-      ? Math.round((weeklyCompletedDayCount / weekDates.length) * 100)
-      : 0;
-
-  const monthlySuccessRate =
-    monthDates.length > 0
-      ? Math.round((monthlyCompletedDayCount / monthDates.length) * 100)
-      : 0;
-
-  const yearlySuccessRate =
-    trackedDates.length > 0
-      ? Math.round((completedDayCount / trackedDates.length) * 100)
-      : 0;
+  const weeklySuccessRate = Math.round(
+    (weeklyCompletedDayCount / weekDates.length) * 100,
+  );
+  const monthlySuccessRate = Math.round(
+    (monthlyCompletedDayCount / monthDates.length) * 100,
+  );
+  const yearlySuccessRate = Math.round(
+    (completedDayCount / trackedDates.length) * 100,
+  );
 
   const bestDayText = mostSuccessfulDay
     ? `${mostSuccessfulDay.name} (${mostSuccessfulDay.count} kez)`
@@ -117,109 +123,109 @@ function HabitDetailPage({ habits, onUpdateDate }) {
   };
 
   return (
-    <div>
-      <div className="rounded-xl border bg-card p-6">
-        <div className="flex items-center gap-3">
-          <div
-            className="size-4 shrink-0 rounded-full"
-            style={{ backgroundColor: habit.color }}
-          />
+    <div className="min-h-screen bg-muted/20">
+      <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-6">
+        <Link
+          to="/"
+          className="-ml-2 mb-6 inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-normal text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          <ArrowLeft />
+          Geri
+        </Link>
 
-          <h1 className="text-2xl font-bold">{habit.name}</h1>
-        </div>
+        <div className="grid items-start gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
+          <div className="flex min-w-0 items-center gap-3">
+            <HabitIcon
+              className="size-7 shrink-0"
+              style={{ color: habit.color }}
+              strokeWidth={2}
+            />
 
-        {habit.target && (
-          <HabitTodayAmountForm
+            <h1 className="truncate text-xl font-normal tracking-tight sm:text-2xl">
+              {habit.name}
+            </h1>
+          </div>
+
+          <HabitHistoryEditor
             key={habit.id}
             habit={habit}
             onUpdateDate={onUpdateDate}
           />
-        )}
-
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">Toplam tamamlanan</p>
-
-            <p className="mt-1 text-2xl font-semibold">
-              {totalCompletedDays} gün
-            </p>
-          </div>
-
-          <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">Mevcut seri</p>
-
-            <p className="mt-1 text-2xl font-semibold">{currentStreak} gün</p>
-          </div>
-
-          <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">En uzun seri</p>
-
-            <p className="mt-1 text-2xl font-semibold">{longestStreak} gün</p>
-          </div>
         </div>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">Bu yıl tamamlanan</p>
+        <section className="mt-5 rounded-xl border bg-background p-3 shadow-xs sm:p-4">
+          <HabitHeatmap
+            year={selectedYear}
+            completedDates={completedDates}
+            color={habit.color}
+            dailyAmounts={habit.dailyAmounts ?? {}}
+            target={habit.target}
+          />
+        </section>
 
-            <p className="mt-1 text-2xl font-semibold">
-              {completedDayCount} gün
-            </p>
-          </div>
+        <div
+          className={`mt-4 grid gap-4 ${
+            habit.target ? "lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)]" : ""
+          }`}
+        >
+          {habit.target && (
+            <HabitTodayAmountForm
+              key={habit.id}
+              habit={habit}
+              onUpdateDate={onUpdateDate}
+            />
+          )}
 
-          <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">Haftalık başarı</p>
+          <section className="overflow-hidden rounded-xl border bg-background shadow-xs">
+            <h2 className="px-3 pt-3 text-base font-normal">İstatistik</h2>
 
-            <p className="mt-1 text-2xl font-semibold">%{weeklySuccessRate}</p>
-          </div>
+            <div className="mt-2 grid divide-y sm:grid-cols-4 sm:divide-x sm:divide-y-0">
+              <StatisticItem
+                label="Toplam tamamlanan"
+                value={`${totalCompletedDays} gün`}
+              />
+              <StatisticItem
+                label="Mevcut seri"
+                value={`${currentStreak} gün`}
+              />
+              <StatisticItem
+                label="En uzun seri"
+                value={`${longestStreak} gün`}
+              />
+              <StatisticItem
+                label="Bu yıl tamamlanan"
+                value={`${completedDayCount} gün`}
+              />
+            </div>
 
-          <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">Aylık başarı</p>
+            <div className="grid divide-y border-t sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+              <StatisticItem
+                label="Haftalık başarı"
+                value={`%${weeklySuccessRate}`}
+              />
+              <StatisticItem
+                label="Aylık başarı"
+                value={`%${monthlySuccessRate}`}
+              />
+              <StatisticItem
+                label="Yıllık başarı"
+                value={`%${yearlySuccessRate}`}
+              />
+            </div>
 
-            <p className="mt-1 text-2xl font-semibold">%{monthlySuccessRate}</p>
-          </div>
-
-          <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">Yıllık başarı</p>
-
-            <p className="mt-1 text-2xl font-semibold">%{yearlySuccessRate}</p>
-          </div>
+            <div className="grid divide-y border-t sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+              <StatisticItem label="En başarılı gün" value={bestDayText} />
+              <StatisticItem label="En başarılı hafta" value={bestWeekText} />
+            </div>
+          </section>
         </div>
-
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">En başarılı gün</p>
-
-            <p className="mt-1 text-xl font-semibold">{bestDayText}</p>
-          </div>
-
-          <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">En başarılı hafta</p>
-
-            <p className="mt-1 text-xl font-semibold">{bestWeekText}</p>
-          </div>
-        </div>
-
-        <HabitHeatmap
-          year={selectedYear}
-          completedDates={completedDates}
-          color={habit.color}
-          dailyAmounts={habit.dailyAmounts ?? {}}
-          target={habit.target}
-        />
-
-        <HabitHistoryEditor
-          key={habit.id}
-          habit={habit}
-          onUpdateDate={onUpdateDate}
-        />
 
         <HabitExportPanel
           habit={habit}
           year={selectedYear}
           statistics={exportStatistics}
         />
-      </div>
+      </main>
     </div>
   );
 }

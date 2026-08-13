@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { habitIcons } from "@/features/habits/habitOptions";
 import { getTodayDate } from "@/lib/date";
+import { Plus, Save, X } from "lucide-react";
 import { Route, Routes } from "react-router";
 import HabitDetailPage from "@/features/habits/HabitDetailPage";
 
@@ -228,9 +229,7 @@ function App() {
           dailyAmounts: updatedDailyAmounts,
           completedDates: hasReachedTarget
             ? [...new Set([...completedDates, date])].sort()
-            : completedDates.filter(
-                (completedDate) => completedDate !== date,
-              ),
+            : completedDates.filter((completedDate) => completedDate !== date),
         };
       }),
     );
@@ -241,20 +240,22 @@ function App() {
       <Route
         path="/"
         element={
-          <div className="min-h-screen bg-muted/30">
+          <div className="min-h-screen bg-muted/20">
             <header className="border-b bg-background">
-              <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
-                <div>
-                  <h1 className="text-2xl font-bold tracking-tight">
+              <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
+                <div className="flex flex-row items-center gap-2">
+                  <img
+                    src="/habitGrid-logo.png"
+                    width={42}
+                    height={42}
+                    alt="HabitGrid Logo"
+                  />
+                  <h1 className="text-xl font-normal text-blue-950">
                     HabitGrid
                   </h1>
-
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Alışkanlıklarını takip et, ilerlemeni gör.
-                  </p>
                 </div>
-
                 <Button
+                  className="h-9"
                   onClick={() => {
                     if (isFormOpen) {
                       handleCancel();
@@ -263,19 +264,20 @@ function App() {
                     }
                   }}
                 >
-                  {isFormOpen ? "Formu kapat" : "Alışkanlık ekle"}
+                  {isFormOpen ? <X /> : <Plus />}
+                  {isFormOpen ? "Kapat" : "Alışkanlık Ekle"}
                 </Button>
               </div>
             </header>
 
-            <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+            <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
               {isFormOpen && (
-                <section className="mb-8 rounded-xl border bg-background p-5">
-                  <h2 className="text-lg font-semibold">
+                <section className="mb-6 rounded-xl border bg-background p-4 shadow-xs">
+                  <h2 className="text-lg font-normal">
                     {editingHabitId ? "Alışkanlığı düzenle" : "Yeni alışkanlık"}
                   </h2>
                   <form className="mt-4" onSubmit={handleSubmit}>
-                    <label className="text-sm font-medium" htmlFor="habit-name">
+                    <label className="text-sm font-normal" htmlFor="habit-name">
                       Alışkanlık adı
                     </label>
 
@@ -303,16 +305,16 @@ function App() {
                     )}
 
                     <fieldset className="mt-4">
-                      <legend className="text-sm font-medium">
+                      <legend className="text-sm font-normal">
                         Alışkanlık rengi
                       </legend>
 
-                      <div className="mt-2 flex flex-wrap gap-3">
+                      <div className="mt-2 flex flex-wrap gap-2.5">
                         {habitColors.map((color) => (
                           <button
                             key={color.value}
                             type="button"
-                            className={`h-9 w-9 rounded-full border ${
+                            className={`size-8 rounded-full border ${
                               habitColor === color.value
                                 ? "ring-2 ring-primary ring-offset-2"
                                 : ""
@@ -328,16 +330,16 @@ function App() {
                     </fieldset>
 
                     <fieldset className="mt-4">
-                      <legend className="text-sm font-medium">
+                      <legend className="text-sm font-normal">
                         Alışkanlık simgesi
                       </legend>
 
-                      <div className="mt-2 flex flex-wrap gap-3">
+                      <div className="mt-2 flex flex-wrap gap-2.5">
                         {habitIcons.map(({ name, value, Icon }) => (
                           <button
                             key={value}
                             type="button"
-                            className={`flex h-10 w-10 items-center justify-center rounded-lg border ${
+                            className={`flex size-9 items-center justify-center rounded-lg border ${
                               habitIcon === value
                                 ? "border-primary bg-primary text-primary-foreground"
                                 : "bg-background text-muted-foreground"
@@ -366,7 +368,7 @@ function App() {
                         />
 
                         <span>
-                          <span className="block text-sm font-medium">
+                          <span className="block text-sm font-normal">
                             Miktar hedefi kullan
                           </span>
 
@@ -378,10 +380,10 @@ function App() {
                       </label>
 
                       {usesTarget && (
-                        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                        <div className="mt-3 grid gap-3 sm:grid-cols-2">
                           <div>
                             <label
-                              className="text-sm font-medium"
+                              className="text-sm font-normal"
                               htmlFor="target-amount"
                             >
                               Günlük hedef
@@ -405,7 +407,7 @@ function App() {
 
                           <div>
                             <label
-                              className="text-sm font-medium"
+                              className="text-sm font-normal"
                               htmlFor="target-unit"
                             >
                               Birim
@@ -435,7 +437,8 @@ function App() {
 
                     <div className="mt-4 flex gap-2">
                       <Button type="submit">
-                        {editingHabitId ? "Değişiklikleri kaydet" : "Kaydet"}
+                        <Save />
+                        {editingHabitId ? "Değişiklikleri Kaydet" : "Kaydet"}
                       </Button>
                       <Button
                         type="button"
@@ -450,18 +453,18 @@ function App() {
               )}
 
               <section>
-                <h2 className="text-xl font-semibold">Alışkanlıklarım</h2>
+                <h2 className="text-xl">Alışkanlıklarım</h2>
 
                 {habits.length === 0 ? (
-                  <div className="mt-4 rounded-xl border border-dashed bg-background px-6 py-16 text-center">
-                    <h3 className="font-medium">Henüz alışkanlık eklenmedi</h3>
+                  <div className="mt-4 rounded-xl border border-dashed bg-background px-5 py-12 text-center">
+                    <h3 className="font-normal">Henüz alışkanlık eklenmedi</h3>
 
                     <p className="mt-2 text-sm text-muted-foreground">
                       Takip etmeye başlamak için ilk alışkanlığını oluştur.
                     </p>
                   </div>
                 ) : (
-                  <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="mt-4 grid gap-4 md:grid-cols-2">
                     {habits.map((habit) => (
                       <HabitCard
                         key={habit.id}
@@ -469,6 +472,7 @@ function App() {
                         onDelete={handleDelete}
                         onEdit={handleEdit}
                         onToggleToday={handleToggleToday}
+                        onUpdateDate={handleUpdateDate}
                       />
                     ))}
                   </div>
@@ -481,10 +485,7 @@ function App() {
       <Route
         path="/aliskanliklar/:habitId"
         element={
-          <HabitDetailPage
-            habits={habits}
-            onUpdateDate={handleUpdateDate}
-          />
+          <HabitDetailPage habits={habits} onUpdateDate={handleUpdateDate} />
         }
       />
     </Routes>

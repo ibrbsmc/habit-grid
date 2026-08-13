@@ -24,31 +24,12 @@ export function getCurrentStreak(completedDates = []) {
   return currentStreak;
 }
 
-// Son 7 günün tamamlanma oranını hesaplar.
-export function getLastSevenDaysRate(completedDates = []) {
-  const currentDate = new Date();
-  let completedDayCount = 0;
-
-  // Bugün dahil son 7 günü geriye doğru kontrol et.
-  for (let dayIndex = 0; dayIndex < 7; dayIndex += 1) {
-    const date = formatDate(currentDate);
-
-    if (completedDates.includes(date)) {
-      completedDayCount += 1;
-    }
-
-    currentDate.setDate(currentDate.getDate() - 1);
-  }
-
-  return Math.round((completedDayCount / 7) * 100);
-}
-
 export function getLongestStreak(completedDates = []) {
   if (completedDates.length === 0) {
     return 0;
   }
 
-  const sortedDates = [...completedDates].sort();
+  const sortedDates = [...new Set(completedDates)].sort();
 
   let longestStreak = 1;
   let currentStreak = 1;

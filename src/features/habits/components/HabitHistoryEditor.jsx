@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getPreviousDate, getTodayDate } from "@/lib/date";
+import { Pencil, Save, X } from "lucide-react";
 import { useState } from "react";
 
 function HabitHistoryEditor({ habit, onUpdateDate }) {
@@ -49,7 +50,10 @@ function HabitHistoryEditor({ habit, onUpdateDate }) {
     if (habit.target) {
       const numericAmount = Number(amount);
 
-      if (amount !== "" && (!Number.isFinite(numericAmount) || numericAmount < 0)) {
+      if (
+        amount !== "" &&
+        (!Number.isFinite(numericAmount) || numericAmount < 0)
+      ) {
         setError("Miktar sıfır veya daha büyük olmalıdır.");
         return;
       }
@@ -65,19 +69,25 @@ function HabitHistoryEditor({ habit, onUpdateDate }) {
 
   if (!isOpen) {
     return (
-      <div className="mt-8">
-        <Button type="button" variant="outline" onClick={handleOpen}>
-          Geçmiş bir kaydı düzenle
+      <div>
+        <Button
+          type="button"
+          variant="outline"
+          className="h-9"
+          onClick={handleOpen}
+        >
+          <Pencil />
+          Geçmişi Düzenle
         </Button>
       </div>
     );
   }
 
   return (
-    <section className="mt-8 rounded-xl border p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <section className="col-span-full mt-2 rounded-xl border bg-background p-4 shadow-xs">
+      <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 className="text-lg font-semibold">Geçmiş günü düzenle</h2>
+          <h2 className="text-base font-normal">Kayıt geçmişini düzenle</h2>
 
           <p className="mt-1 text-sm text-muted-foreground">
             Kaçırdığın veya yanlış kaydettiğin bir günü güncelleyebilirsin.
@@ -86,16 +96,17 @@ function HabitHistoryEditor({ habit, onUpdateDate }) {
 
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           onClick={() => setIsOpen(false)}
         >
+          <X />
           Kapat
         </Button>
       </div>
 
-      <form className="mt-4 grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit}>
+      <form className="mt-3 grid gap-3 sm:grid-cols-2" onSubmit={handleSubmit}>
         <div>
-          <label className="text-sm font-medium" htmlFor="history-date">
+          <label className="text-sm font-normal" htmlFor="history-date">
             Tarih
           </label>
 
@@ -111,8 +122,8 @@ function HabitHistoryEditor({ habit, onUpdateDate }) {
 
         {habit.target ? (
           <div>
-            <label className="text-sm font-medium" htmlFor="history-amount">
-              Günlük miktar
+            <label className="text-sm font-normal" htmlFor="history-amount">
+              İlerleme
             </label>
 
             <div className="mt-2 flex items-center gap-2">
@@ -133,14 +144,9 @@ function HabitHistoryEditor({ habit, onUpdateDate }) {
                 {habit.target.unit}
               </span>
             </div>
-
-            <p className="mt-2 text-xs text-muted-foreground">
-              {habit.target.amount} {habit.target.unit} hedefine ulaşınca gün
-              tamamlandı sayılır. Boş bırakırsan kayıt silinir.
-            </p>
           </div>
         ) : (
-          <label className="flex items-center gap-3 self-end rounded-lg border px-4 py-3">
+          <label className="flex items-center gap-2.5 self-end rounded-lg border px-3 py-2.5">
             <input
               type="checkbox"
               className="size-4"
@@ -151,7 +157,7 @@ function HabitHistoryEditor({ habit, onUpdateDate }) {
               }}
             />
 
-            <span className="text-sm font-medium">Bu gün tamamlandı</span>
+            <span className="text-sm font-normal">Bu gün tamamlandı</span>
           </label>
         )}
 
@@ -164,7 +170,10 @@ function HabitHistoryEditor({ habit, onUpdateDate }) {
             </p>
           )}
 
-          <Button type="submit">Kaydı güncelle</Button>
+          <Button type="submit">
+            <Save />
+            Güncelle
+          </Button>
         </div>
       </form>
     </section>
