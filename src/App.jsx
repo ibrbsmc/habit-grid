@@ -2,21 +2,13 @@ import HabitCard from "@/features/habits/components/HabitCard";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { habitIcons } from "@/features/habits/habitOptions";
+import { habitColors, habitIcons } from "@/features/habits/habitOptions";
 import { getTodayDate } from "@/lib/date";
 import { Plus, Save, X } from "lucide-react";
 import { Route, Routes } from "react-router";
 import HabitDetailPage from "@/features/habits/HabitDetailPage";
 
 function App() {
-  const habitColors = [
-    { name: "Mavi", value: "#2563eb" },
-    { name: "Yeşil", value: "#16a34a" },
-    { name: "Mor", value: "#9333ea" },
-    { name: "Turuncu", value: "#ea580c" },
-    { name: "Kırmızı", value: "#dc2626" },
-  ];
-
   const [habits, setHabits] = useState(() => {
     const savedHabits = localStorage.getItem("habit-grid-habits");
     return savedHabits ? JSON.parse(savedHabits) : [];
